@@ -19,7 +19,11 @@ setInterval(function(){
     // strip.setPixel(options)
     // i++
     // if(i == 59) i = 0
-    strip.clear()
-    strip.test()
+    strip.clear(function(){
+      console.log('cleared')
+      strip.test(function(){
+        console.log('tested')
+      })
+    })
     console.log('waiting')
 }, 5000)

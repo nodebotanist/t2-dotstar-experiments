@@ -10,10 +10,10 @@ function DotStarStrip(numPixels, port){
   this.port = port ? tessel.port[port] : tessel.port.A
   this.numPixels = numPixels
   // 4 bytes for start frame, 4 for each pixel, 4 for end frame
-  this.pixels = []
-  this.startFrameBuffer = new Buffer([0x00, 0x00, 0x00, 0x00])
-  this.endFrameBuffer = new Buffer([0xff, 0xff, 0xff, 0xff])
-
+  this.pixels = new Buffer(numPixels * 4 + 8)
+  for(let i = 0; i < this.pixels.length; i++){
+    this.pixels[i] = 0x00
+  }
   console.log(this.pixels.length)
 }
 
@@ -22,26 +22,29 @@ DotStarStrip.prototype.init = function(clockSpeed){
   this.spi = this.port.SPI({
     clockSpeed: clockSpeed
   })
-}
-
-DotStarStrip.prototype.clear = function(){
-    this.spi.transfer(new Buffer([0x00, 0x00, 0x00, 0x00]))
-  // }
-  for(let i = 0; i < this.numPixels; i++){
-    // data[i] = 0xff
-    // data[i + 1] = 0x00
-    // data[i + 2] = 0x00
-    // data[i + 3] = 0x00
-    this.spi.transfer(new Buffer([0xff, 0x00, 0x00, 0x00]))
+  for(let i = 0; i < 4; i++){
+    this.pixels[i] = 0x00
   }
-  // let dataBuffer = Buffer.concat([this.startFrameBuffer, data, this.endFrameBuffer])
-  // console.log(dataBuffer)
-  // this.spi.transfer(dataBuffer)
-  // for(let i = 0; i < 4; i++){
-    this.spi.transfer(new Buffer([0xFF, 0xFF, 0xFF, 0xFF]))
+  for(let i = this.pixels.length; i >= this.pixels.length - 4; i--){
+    this.pixels[i-1] = 0xFF
+  }
 }
 
-DotStarStrip.prototype.setPixel = function(options){
+DotStarStrip.prototype.clear = function(cb){
+  for(let i=4; i < this.pixels.length - 4; i+=4){
+    this.pixels[i] = 0xFF
+    this.pixels[i+1] = 0x00
+    this.pixels[i+2] = 0x00
+    this.pixels[i+3] = 0x00
+  }
+  this.spi.transfer(this.pixels, function(err){
+    if(err) throw new Error(err)
+    if(cb) cb()
+  })
+}
+
+DotStarStrip.prototype.setPixel = function(options, cb){
+  cb = cb || function(){}
   //TODO: Validate options: need pixel, color array of rgb or red, green, blue
   let offset = 3 + 4 * options.pixel
 
@@ -51,27 +54,20 @@ DotStarStrip.prototype.setPixel = function(options){
   this.pixels[offset + 3] = options.color[2]
 
 
-  this.spi.transfer(this.pixels)
+  this.spi.transfer(this.pixels, cb)
 }
 
-DotStarStrip.prototype.test = function(){
-  // let data = new Buffer(60 * 4)
-  // for(let i = 0; i < 4; i++){
-    this.spi.transfer(new Buffer([0x00, 0x00, 0x00, 0x00]))
-  // }
-  for(let i = 0; i < this.numPixels * 2; i++){
-    // data[i] = 0xff
-    // data[i + 1] = 0x00
-    // data[i + 2] = 0x00
-    // data[i + 3] = 0x00
-    this.spi.transfer(new Buffer([0xff, 0xaa, 0xaa, 0xaa]))
+DotStarStrip.prototype.test = function(cb){
+  for(let i=4; i < this.pixels.length - 4; i+=4){
+    this.pixels[i] = 0xFF
+    this.pixels[i+1] = 0xAA
+    this.pixels[i+2] = 0xAA
+    this.pixels[i+3] = 0xAA
   }
-  // let dataBuffer = Buffer.concat([this.startFrameBuffer, data, this.endFrameBuffer])
-  // console.log(dataBuffer)
-  // this.spi.transfer(dataBuffer)
-  // for(let i = 0; i < 4; i++){
-    this.spi.transfer(new Buffer([0xFF, 0xFF, 0xFF, 0xFF]))
-  // }  
+  this.spi.transfer(this.pixels, function(err){
+    if(err) throw new Error(err)
+    if(cb){ cb() }
+  })
 }
 
 module.exports = DotStarStrip
