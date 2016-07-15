@@ -1,0 +1,16 @@
+{
+  "name": "t2-dotstar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "repository": "git@github.com:nodebotanist/t2-dotstar-experiments.git",
+  "license": "ISC",
+  "dependencies": {
+    "tessel": "^0.3.24"
+  }
+}
