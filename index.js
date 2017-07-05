@@ -1,8 +1,10 @@
+'use strict'
+
 const tessel = require('tessel')
 const colot = require('color')
 const DotStarStrip = require('./dotstar')
 
-let strip = new DotStarStrip(60, 'A')
+let strip = new DotStarStrip(20, 'A')
 
 strip.init(4000000)
 strip.clear()
