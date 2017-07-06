@@ -4,7 +4,7 @@ const tessel = require('tessel')
 const colot = require('color')
 const DotStarStrip = require('./dotstar')
 
-let strip = new DotStarStrip(20, 'A')
+let strip = new DotStarStrip(40, 'A')
 
 strip.init(4000000)
 strip.clear()
