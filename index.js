@@ -10,7 +10,7 @@ strip.init(4000000)
 strip.clear()
 
 let options = {
-  color: [50, 0, 150]
+  color: [0x66, 0x33, 0x99]
 }
 
 let i = 0
